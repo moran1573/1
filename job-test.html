@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>财税岗位能力测试-完整版</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', sans-serif;
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+        .header {
+            text-align: center;
+            padding: 20px;
+            background: #2c7be5;
+            color: white;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+        .progress {
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            margin: 20px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: #27a744;
+            width: 0;
+            transition: width 0.3s;
+            border-radius: 4px;
+        }
+        .question-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .option-btn {
+            display: block;
+            width: 100%;
+            padding: 15px;
+            margin: 10px 0;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+        }
+        .option-btn:hover {
+            border-color: #2c7be5;
+            background: #f8f9ff;
+            transform: translateY(-2px);
+        }
+        .result-box {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>财税岗位匹配测试</h1>
+        <p>完成25题获取精准岗位建议</p>
+    </div>
+    <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div id="questionContainer"></div>
+
+<script>
+// 完整25题题库
+const questions = [
+    // 第一部分：沟通协作风格（5题）
+    {
+        section: "沟通协作",
+        question: "1. 面对陌生的职场环境，你的第一反应是？",
+        options: [
+            {text: "观察为主，等别人主动打招呼", type: "A"},
+            {text: "主动介绍自己，询问对方工作职责", type: "B"}
+        ]
+    },
+    {
+        section: "沟通协作", 
+        question: "2. 你更喜欢的沟通方式是？",
+        options: [
+            {text: "文字沟通（邮件/文档），确保信息准确", type: "A"},
+            {text: "面对面交流（或电话），更直接高效", type: "B"}
+        ]
+    },
+    {
+        section: "沟通协作",
+        question: "3. 当同事的方案与你有分歧时，你会？",
+        options: [
+            {text: "先按流程执行，后续再提建议", type: "A"},
+            {text: "立即提出不同看法，推动优化", type: "B"}
+        ]
+    },
+    {
+        section: "沟通协作",
+        question: "4. 需要协调多个部门时，你会？",
+        options: [
+            {text: "明确各方职责后分头对接", type: "A"},
+            {text: "组织会议当面协调各方诉求", type: "B"}
+        ]
+    },
+    {
+        section: "沟通协作",
+        question: "5. 遇到客户投诉时，你的处理方式是？",
+        options: [
+            {text: "按制度流程逐步处理", type: "A"},
+            {text: "优先安抚情绪再解决问题", type: "B"}
+        ]
+    },
+
+    // 第二部分：专业能力倾向（5题）
+    {
+        section: "专业能力",
+        question: "6. 面对新财税政策时，你更关注？",
+        options: [
+            {text: "政策细节和执行标准", type: "A"},
+            {text: "政策带来的市场机会", type: "B"}
+        ]
+    },
+    {
+        section: "专业能力",
+        question: "7. 处理复杂账务时，你的工作方式是？",
+        options: [
+            {text: "严格按照会计准则分步处理", type: "A"},
+            {text: "结合业务场景灵活处理", type: "B"}
+        ]
+    },
+    {
+        section: "专业能力",
+        question: "8. 你更擅长的工作类型是？",
+        options: [
+            {text: "账目核对与凭证整理", type: "A"},
+            {text: "财税方案讲解与演示", type: "B"}
+        ]
+    },
+    {
+        section: "专业能力",
+        question: "9. 面对专业难题时，你会？",
+        options: [
+            {text: "查阅资料独立研究解决", type: "A"},
+            {text: "寻求专家或团队支持", type: "B"}
+        ]
+    },
+    {
+        section: "专业能力",
+        question: "10. 你更愿意发展的技能方向是？",
+        options: [
+            {text: "财税审计与风险控制", type: "A"},
+            {text: "客户需求分析与方案设计", type: "B"}
+        ]
+    },
+
+    // 第三部分：工作场景偏好（5题）
+    {
+        section: "工作偏好",
+        question: "11. 你更喜欢的工作环境是？",
+        options: [
+            {text: "稳定规律的办公室工作", type: "A"},
+            {text: "需要外出拜访客户的工作", type: "B"}
+        ]
+    },
+    {
+        section: "工作偏好",
+        question: "12. 你更愿意接受的挑战是？",
+        options: [
+            {text: "处理高精度复杂账务", type: "A"},
+            {text: "完成季度销售指标", type: "B"}
+        ]
+    },
+    {
+        section: "工作偏好",
+        question: "13. 你更看重的工作价值是？",
+        options: [
+            {text: "专业能力的持续精进", type: "A"},
+            {text: "客户关系的长期维护", type: "B"}
+        ]
+    },
+    {
+        section: "工作偏好",
+        question: "14. 你更喜欢的工作节奏是？",
+        options: [
+            {text: "按计划分阶段推进", type: "A"},
+            {text: "根据市场需求灵活调整", type: "B"}
+        ]
+    },
+    {
+        section: "工作偏好",
+        question: "15. 你更认可的成就感来源是？",
+        options: [
+            {text: "账目零误差的记录", type: "A"},
+            {text: "客户采纳财税方案", type: "B"}
+        ]
+    },
+
+    // 第四部分：学习发展倾向（5题）
+    {
+        section: "学习发展",
+        question: "16. 你更倾向的培训方式是？",
+        options: [
+            {text: "系统化的专业课程", type: "A"},
+            {text: "实战案例研讨会", type: "B"}
+        ]
+    },
+    {
+        section: "学习发展",
+        question: "17. 你更愿意投入时间学习的是？",
+        options: [
+            {text: "最新财税法规解读", type: "A"},
+            {text: "商务沟通与谈判技巧", type: "B"}
+        ]
+    },
+    {
+        section: "学习发展",
+        question: "18. 你更认可的成长路径是？",
+        options: [
+            {text: "从基础会计到财务主管", type: "A"},
+            {text: "从业务会计到客户经理", type: "B"}
+        ]
+    },
+    {
+        section: "学习发展",
+        question: "19. 你更关注的职业发展要素是？",
+        options: [
+            {text: "专业资格认证获取", type: "A"},
+            {text: "客户资源积累", type: "B"}
+        ]
+    },
+    {
+        section: "学习发展",
+        question: "20. 你更愿意参加的行业活动是？",
+        options: [
+            {text: "专业学术论坛", type: "A"},
+            {text: "行业交流展会", type: "B"}
+        ]
+    },
+
+    // 第五部分：压力应对方式（5题）
+    {
+        section: "压力应对",
+        question: "21. 面对月末结账压力，你会？",
+        options: [
+            {text: "按清单逐项完成", type: "A"},
+            {text: "优先处理紧急事项", type: "B"}
+        ]
+    },
+    {
+        section: "压力应对",
+        question: "22. 当多个任务并行时，你会？",
+        options: [
+            {text: "制定详细计划表", type: "A"},
+            {text: "根据优先级动态调整", type: "B"}
+        ]
+    },
+    {
+        section: "压力应对",
+        question: "23. 遇到突发工作变更时，你会？",
+        options: [
+            {text: "先确认变更流程", type: "A"},
+            {text: "立即调整应对方案", type: "B"}
+        ]
+    },
+    {
+        section: "压力应对",
+        question: "24. 面对业绩压力时，你会？",
+        options: [
+            {text: "专注提升工作效率", type: "A"},
+            {text: "主动寻求资源支持", type: "B"}
+        ]
+    },
+    {
+        section: "压力应对",
+        question: "25. 长期工作疲惫时，你会？",
+        options: [
+            {text: "通过专业技能优化流程", type: "A"},
+            {text: "调整沟通方式提升效率", type: "B"}
+        ]
+    }
+];
+
+let currentStep = 0;
+let answers = { A: 0, B: 0 };
+
+// 动态渲染题目
+function renderQuestion() {
+    const q = questions[currentStep];
+    document.getElementById('questionContainer').innerHTML = `
+        <div class="question-card">
+            <h3>${currentStep+1}/${questions.length} ${q.question}</h3>
+            ${q.options.map(opt => `
+                <button class="option-btn" onclick="nextQuestion('${opt.type}')">
+                    <strong>${opt.type}.</strong> ${opt.text}
+                </button>
+            `).join('')}
+        </div>
+    `;
+    // 更新进度条
+    document.getElementById('progressBar').style.width = 
+        `${((currentStep+1)/questions.length*100).toFixed(1)}%`;
+}
+
+// 处理选项选择
+function nextQuestion(type) {
+    answers[type]++;
+    currentStep++;
+    
+    if(currentStep < questions.length) {
+        renderQuestion();
+    } else {
+        showResult();
+    }
+}
+
+// 显示最终结果
+function showResult() {
+    document.body.innerHTML = `
+        <div class="header">
+            <h1>测试完成！</h1>
+            <p>基于你的选择推荐最佳岗位</p>
+        </div>
+        <div class="result-box">
+            <h2 style="color:#2c7be5">${getResultText().title}</h2>
+            <div style="margin: 20px 0">
+                <div style="display: inline-block; width: 100px; height: 100px; 
+                    background: ${getResultText().color}; border-radius: 50%"></div>
+            </div>
+            <p style="font-size: 1.1em">${getResultText().desc}</p>
+            <p>A选项：${answers.A}题 | B选项：${answers.B}题</p>
+            <button onclick="location.reload()" 
+                style="padding: 12px 30px; background: #2c7be5; color: white; 
+                border: none; border-radius: 25px; margin-top: 20px; cursor: pointer">
+                🔄 重新测试
+            </button>
+        </div>
+    `;
+}
+
+// 结果判断逻辑
+function getResultText() {
+    const total = answers.A + answers.B;
+    if(answers.A / total >= 0.6) {
+        return {
+            title: "🏆 会计助理专家",
+            color: "#27a744",
+            desc: "优势分析：严谨细致、流程规范，擅长在稳定环境中持续提升专业能力，适合从基础账务处理成长为财税审计专家"
+        }
+    } else if(answers.B / total >= 0.6) {
+        return {
+            title: "🚀 销售会计精英",
+            color: "#6f42c1",
+            desc: "优势分析：善于沟通、目标导向，能够将专业能力转化为客户解决方案，适合发展为财税+业务的复合型人才"
+        }
+    } else {
+        return {
+            title: "🌟 双岗位适配人才",
+            color: "#2c7be5",
+            desc: "能力特点：兼具专业素养与沟通能力，建议根据兴趣选择发展方向：\n• 专业路线：会计助理→主管会计→财务经理\n• 业务路线：销售会计→客户经理→业务总监"
+        }
+    }
+}
+
+// 启动测试
+renderQuestion();
+</script>
+</body>
+</html>
